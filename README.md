@@ -1,4 +1,5 @@
 # coding-project-template
+https://github.com/bekatassefa/e-plantShopping.git
 e-plantShopping
 Summary of Project Requirements:
 Landing Page: Company name, background image, "About Us" paragraph, and a "Get Started" button (links to Product Listing).
