@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { addItem } from './CartSlice'; 
+import { useSelector, useDispatch } from 'react-redux';
+import { addItem } from './CartSlice';
 import './ProductList.css';
 import CartItem from './CartItem';
 
 function ProductList({ onHomeClick }) {
     const [showCart, setShowCart] = useState(false);
-    const [addedToCart, setAddedToCart] = useState({});
     const dispatch = useDispatch();
+    
+    // Accessing the cart state from Redux
+    const cart = useSelector(state => state.cart.items);
 
     const plantsArray = [
         {
@@ -131,6 +133,12 @@ function ProductList({ onHomeClick }) {
             category: "Medicinal Plants",
             plants: [
                 {
+                    name: "Aloe Vera",
+                    image: "https://cdn.pixabay.com/photo/2018/04/02/07/42/leaf-3283175_1280.jpg",
+                    description: "Soothing gel used for skin ailments.",
+                    cost: "$14"
+                },
+                {
                     name: "Echinacea",
                     image: "https://cdn.pixabay.com/photo/2014/12/05/03/53/echinacea-557477_1280.jpg",
                     description: "Boosts immune system, helps fight colds.",
@@ -141,6 +149,12 @@ function ProductList({ onHomeClick }) {
                     image: "https://cdn.pixabay.com/photo/2017/07/12/12/23/peppermint-2496773_1280.jpg",
                     description: "Relieves digestive issues and headaches.",
                     cost: "$13"
+                },
+                {
+                    name: "Lemon Balm",
+                    image: "https://cdn.pixabay.com/photo/2019/09/16/07/41/balm-4480134_1280.jpg",
+                    description: "Calms nerves and promotes relaxation.",
+                    cost: "$14"
                 },
                 {
                     name: "Chamomile",
@@ -172,6 +186,12 @@ function ProductList({ onHomeClick }) {
                     cost: "$10"
                 },
                 {
+                    name: "Snake Plant",
+                    image: "https://cdn.pixabay.com/photo/2021/01/22/06/04/snake-plant-5939187_1280.jpg",
+                    description: "Needs infrequent watering and is resilient to most pests.",
+                    cost: "$15"
+                },
+                {
                     name: "Cast Iron Plant",
                     image: "https://cdn.pixabay.com/photo/2017/02/16/18/04/cast-iron-plant-2072008_1280.jpg",
                     description: "Hardy plant that tolerates low light and neglect.",
@@ -201,18 +221,18 @@ function ProductList({ onHomeClick }) {
         justifyContent: 'space-between',
         alignItems: 'center',
         fontSize: '20px',
-    }
+    };
     const styleObjUl = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '1100px',
-    }
+    };
     const styleA = {
         color: 'white',
         fontSize: '30px',
         textDecoration: 'none',
-    }
+    };
 
     const handleHomeClick = (e) => {
         e.preventDefault();
@@ -234,12 +254,14 @@ function ProductList({ onHomeClick }) {
         setShowCart(false);
     };
 
+    // Integrated handleAddToCart for Redux
     const handleAddToCart = (product) => {
         dispatch(addItem(product));
-        setAddedToCart((prevState) => ({
-            ...prevState,
-            [product.name]: true,
-        }));
+    };
+
+    // Logic to calculate total items for the navbar icon
+    const calculateTotalQuantity = () => {
+        return cart.reduce((total, item) => total + item.quantity, 0);
     };
 
     return (
@@ -261,12 +283,15 @@ function ProductList({ onHomeClick }) {
                     <div> 
                         <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}>
                             <h1 className='cart'>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68">
-                                    <rect width="156" height="156" fill="none"></rect>
-                                    <circle cx="80" cy="216" r="12"></circle>
-                                    <circle cx="184" cy="216" r="12"></circle>
-                                    <path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" id="mainIconPathAttribute"></path>
-                                </svg>
+                                <div className='cart_quantity_container'>
+                                    <span className="cart_quantity_count">{calculateTotalQuantity()}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68">
+                                        <rect width="156" height="156" fill="none"></rect>
+                                        <circle cx="80" cy="216" r="12"></circle>
+                                        <circle cx="184" cy="216" r="12"></circle>
+                                        <path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" id="mainIconPathAttribute"></path>
+                                    </svg>
+                                </div>
                             </h1>
                         </a>
                     </div>
@@ -277,24 +302,20 @@ function ProductList({ onHomeClick }) {
                 <div className="product-grid">
                     {plantsArray.map((category, index) => (
                         <div key={index}>
-                            <h1 className="category-header">{category.category}</h1>
+                            <h1 className="category-title">{category.category}</h1>
                             <div className="product-list">
                                 {category.plants.map((plant, plantIndex) => (
                                     <div className="product-card" key={plantIndex}>
-                                        <img 
-                                            className="product-image" 
-                                            src={plant.image} 
-                                            alt={plant.name} 
-                                        />
+                                        <img className="product-image" src={plant.image} alt={plant.name} />
                                         <div className="product-title">{plant.name}</div>
                                         <div className="product-description">{plant.description}</div>
                                         <div className="product-cost">{plant.cost}</div>
                                         <button 
-                                            className={`product-button ${addedToCart[plant.name] ? 'disabled' : ''}`}
+                                            className={`product-button ${cart.some(item => item.name === plant.name) ? 'disabled' : ''}`} 
                                             onClick={() => handleAddToCart(plant)}
-                                            disabled={addedToCart[plant.name]}
+                                            disabled={cart.some(item => item.name === plant.name)}
                                         >
-                                            {addedToCart[plant.name] ? 'Added to Cart' : 'Add to Cart'}
+                                            {cart.some(item => item.name === plant.name) ? 'Added to Cart' : 'Add to Cart'}
                                         </button>
                                     </div>
                                 ))}
